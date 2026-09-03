@@ -24,16 +24,18 @@ fn calc_check_code(id_17: &str) -> VResult<char> {
 
 fn main() {
     let mut buf = String::new();
-    match std::io::stdin().lock().read_to_string(&mut buf) {
-        Ok(_) => {}
-        Err(e) => {
-            eprintln!("{}", e);
-            return;
-        }
+    if let Err(e) = std::io::stdin().lock().read_to_string(&mut buf) {
+        eprintln!("{}", e);
+        return;
     }
 
     for line in buf.lines() {
-        let code = calc_check_code(line.trim()).unwrap_or_default();
-        println!("{}", code);
+        match calc_check_code(line.trim()) {
+            Ok(code) => println!("{}", code),
+            Err(e) => {
+                eprintln!("error: {}", e);
+                println!()
+            }
+        }
     }
 }

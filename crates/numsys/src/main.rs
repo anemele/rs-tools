@@ -48,8 +48,8 @@ fn main() {
         match ns._convert(line.trim(), args.from_base, args.to_base) {
             Ok(s) => println!("{}", s),
             Err(e) => {
-                // stdout not stderr
-                println!("{}", e)
+                eprintln!("error: {}", e);
+                println!()
             }
         }
     }
