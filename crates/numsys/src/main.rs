@@ -18,17 +18,6 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
-    let mut buf = String::new();
-    if let Err(e) = std::io::stdin().lock().read_to_string(&mut buf) {
-        eprintln!("{}", e);
-        return;
-    }
-
-    if args.to_base == args.from_base {
-        println!("{}", buf);
-        return;
-    }
-
     let ns = match args.charset {
         None => NumSys::default(),
         Some(s) => match NumSys::new(&s) {
@@ -40,6 +29,12 @@ fn main() {
         },
     };
     if let Err(e) = ns.check_base(args.from_base, args.to_base) {
+        eprintln!("{}", e);
+        return;
+    }
+
+    let mut buf = String::new();
+    if let Err(e) = std::io::stdin().lock().read_to_string(&mut buf) {
         eprintln!("{}", e);
         return;
     }
