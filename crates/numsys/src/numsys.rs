@@ -25,6 +25,7 @@ pub enum NSError {
 
 type RResult<T> = Result<T, NSError>;
 
+// TODO: u128 or bigint?
 impl NumSys {
     pub fn new(s: &str) -> RResult<Self> {
         let seqmap = SeqMap::try_from(s)?;
