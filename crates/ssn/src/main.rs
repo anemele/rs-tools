@@ -1,4 +1,4 @@
-use std::io::Read;
+use std::io::BufRead;
 
 const COEFFICIENT: [u8; 17] = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
 const LAST_NUMBER: &[u8] = b"10X987654321";
@@ -23,19 +23,15 @@ fn calc_check_code(id_17: &str) -> VResult<char> {
 }
 
 fn main() {
-    let mut buf = String::new();
-    if let Err(e) = std::io::stdin().lock().read_to_string(&mut buf) {
-        eprintln!("{}", e);
-        return;
-    }
-
-    for line in buf.lines() {
-        match calc_check_code(line.trim()) {
+    std::io::stdin()
+        .lock()
+        .lines()
+        .map_while(Result::ok)
+        .for_each(|line| match calc_check_code(line.trim()) {
             Ok(code) => println!("{}", code),
             Err(e) => {
                 eprintln!("error: {}", e);
                 println!()
             }
-        }
-    }
+        });
 }

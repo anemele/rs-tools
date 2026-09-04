@@ -1,4 +1,4 @@
-use std::io::Read;
+use std::io::BufRead;
 
 use clap::Parser;
 use numsys::NumSys;
@@ -33,19 +33,17 @@ fn main() {
         return;
     }
 
-    let mut buf = String::new();
-    if let Err(e) = std::io::stdin().lock().read_to_string(&mut buf) {
-        eprintln!("{}", e);
-        return;
-    }
-
-    for line in buf.lines() {
-        match ns._convert(line.trim(), args.from_base, args.to_base) {
-            Ok(s) => println!("{}", s),
-            Err(e) => {
-                eprintln!("error: {}", e);
-                println!()
-            }
-        }
-    }
+    std::io::stdin()
+        .lock()
+        .lines()
+        .map_while(Result::ok)
+        .for_each(
+            |line| match ns._convert(line.trim(), args.from_base, args.to_base) {
+                Ok(s) => println!("{}", s),
+                Err(e) => {
+                    eprintln!("error: {}", e);
+                    println!()
+                }
+            },
+        );
 }

@@ -1,5 +1,5 @@
 use std::{
-    io::Read,
+    io::BufRead,
     ops::{Add, Div},
 };
 
@@ -19,14 +19,10 @@ pub enum Cli {
 fn main() {
     let cmd = Cli::parse();
 
-    let mut buf = String::new();
-    if let Err(e) = std::io::stdin().lock().read_to_string(&mut buf) {
-        eprintln!("error: {}", e);
-        return;
-    }
-
-    let data: Vec<_> = buf
+    let data: Vec<_> = std::io::stdin()
+        .lock()
         .lines()
+        .map_while(Result::ok)
         .map(|line| Decimal::from_str_exact(line.trim()).unwrap_or_default())
         .collect();
 
