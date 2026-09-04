@@ -1,0 +1,21 @@
+[package]
+name = "crypt-file"
+version = "0.7.1"
+edition = "2024"
+
+[[bin]]
+name = "cf"
+path = "src/main.rs"
+
+[dependencies]
+base64 = "0.23.1"
+clap = { version = "4.6.6", features = ["derive", "env"] }
+glob = "0.3.4"
+rand = "0.10.2"
+rand_chacha = "0.10.0"
+sha2 = "0.11.0"
+thiserror = "2.0.20"
+
+[dev-dependencies]
+sha256 = "1.6.0"
+temp-env = "0.3.6"
