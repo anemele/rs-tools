@@ -1,0 +1,12 @@
+[package]
+name = "prime-factor"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "pf"
+path = "src/main.rs"
+
+[dependencies]
+bytemuck = "1.25.2"
+memmap2 = "0.9.11"
