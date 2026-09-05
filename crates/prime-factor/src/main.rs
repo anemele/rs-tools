@@ -1,25 +1,24 @@
+use argh::FromArgs;
+use bytemuck::cast_slice;
+use memmap2::Mmap;
 use std::{
-    env::home_dir,
     fs,
     io::{self, BufRead, Write},
 };
-
-use bytemuck::cast_slice;
-use memmap2::Mmap;
 
 const N: usize = 100_000_000;
 
 const CACHE_PATH: &str = ".cache/prime-factor";
 const SPF_FILE: &str = "spf.bin";
 
-fn get_spf_file() -> io::Result<(fs::File, Mmap)> {
-    let cache_path = home_dir().unwrap_or_default().join(CACHE_PATH);
+fn get_spf_file(re_generate: bool) -> io::Result<(fs::File, Mmap)> {
+    let cache_path = std::env::home_dir().unwrap_or_default().join(CACHE_PATH);
     if !fs::exists(&cache_path)? {
         fs::create_dir_all(&cache_path)?;
     }
 
     let spf_file = cache_path.join(SPF_FILE);
-    if fs::exists(&spf_file)? {
+    if !re_generate && fs::exists(&spf_file)? {
         eprintln!("load existing spf file");
         let file = fs::File::open(spf_file)?;
         let mmap = unsafe { Mmap::map(&file)? };
@@ -81,8 +80,37 @@ fn factor(view: &[u32], mut n: u32) -> Option<String> {
     Some(sv.join("*"))
 }
 
+#[derive(Debug, FromArgs)]
+/// prime factor/filter
+#[argh(help_triggers("-h", "--help", "help"))]
+struct Args {
+    #[argh(switch, short = 'g')]
+    /// re-generate spf file
+    re_generate: bool,
+
+    #[argh(switch, short = 'f')]
+    /// filter, not factor
+    filter: bool,
+
+    #[argh(switch, short = 'V')]
+    /// print version
+    version: bool,
+}
+
+#[inline]
+fn print_version() {
+    println!("{} v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+    std::process::exit(0);
+}
+
 fn main() {
-    let (_file, mmap) = match get_spf_file() {
+    let args: Args = argh::from_env();
+
+    if args.version {
+        print_version();
+    }
+
+    let (_file, mmap) = match get_spf_file(args.re_generate) {
         Ok(ok) => ok,
         Err(e) => {
             eprintln!("failed to open spf file: {}", e);
@@ -91,7 +119,7 @@ fn main() {
     };
     let view: &[u32] = cast_slice(&mmap);
 
-    std::io::stdin()
+    let nums = std::io::stdin()
         .lock()
         .lines()
         .map_while(Result::ok)
@@ -102,12 +130,20 @@ fn main() {
                 println!();
                 None
             }
-        })
-        .for_each(|n| match factor(view, n) {
+        });
+
+    if args.filter {
+        nums.filter(|n| *n > 1 && view.get(*n as usize).is_some_and(|nn| nn == n))
+            .for_each(|n| {
+                println!("{}", n);
+            });
+    } else {
+        nums.for_each(|n| match factor(view, n) {
             Some(s) => println!("{}", s),
             None => {
                 eprintln!("over max: {}", N);
                 println!()
             }
-        });
+        })
+    }
 }
