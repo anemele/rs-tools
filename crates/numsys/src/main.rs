@@ -4,7 +4,6 @@ use std::io::BufRead;
 
 #[derive(Debug, FromArgs)]
 /// numeral system: convert number between different bases.
-#[argh(help_triggers("-h", "--help"))]
 struct Args {
     #[argh(option, short = 't', default = "16")]
     /// to base, default 16
@@ -17,24 +16,10 @@ struct Args {
     #[argh(option, short = 'c')]
     /// charset, default [0-9A-Z]
     charset: Option<String>,
-
-    #[argh(switch, short = 'V')]
-    /// print version
-    version: bool,
-}
-
-#[inline]
-fn print_version() {
-    println!("{} v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
-    std::process::exit(0);
 }
 
 fn main() {
     let args: Args = argh::from_env();
-
-    if args.version {
-        print_version();
-    }
 
     let ns = match args.charset {
         None => NumSys::default(),

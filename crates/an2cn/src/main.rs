@@ -23,29 +23,14 @@ fn convert_number(num: &str, case: ChineseCase) -> String {
 
 #[derive(Debug, FromArgs)]
 /// convert Arabic number to Chinese number
-#[argh(help_triggers("-h", "--help"))]
 struct Args {
     #[argh(switch, short = 'l')]
     /// use lower case
     lower: bool,
-
-    #[argh(switch, short = 'V')]
-    /// print version
-    version: bool,
-}
-
-#[inline]
-fn print_version() {
-    println!("{} v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
-    std::process::exit(0);
 }
 
 fn main() {
     let args: Args = argh::from_env();
-
-    if args.version {
-        print_version();
-    }
 
     let case = if args.lower {
         ChineseCase::Lower

@@ -78,7 +78,6 @@ fn factor(view: &[u32], mut n: u32) -> Option<String> {
 
 #[derive(Debug, FromArgs)]
 /// prime factor/filter
-#[argh(help_triggers("-h", "--help"))]
 struct Args {
     #[argh(switch, short = 'g')]
     /// re-generate spf file
@@ -87,24 +86,10 @@ struct Args {
     #[argh(switch, short = 'f')]
     /// filter, not factor
     filter: bool,
-
-    #[argh(switch, short = 'V')]
-    /// print version
-    version: bool,
-}
-
-#[inline]
-fn print_version() {
-    println!("{} v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
-    std::process::exit(0);
 }
 
 fn main() {
     let args: Args = argh::from_env();
-
-    if args.version {
-        print_version();
-    }
 
     let (_file, mmap) = match get_spf_file(args.re_generate) {
         Ok(ok) => ok,
