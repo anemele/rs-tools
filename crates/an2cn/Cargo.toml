@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+argh = "0.1.19"
 chinese-number = {
     version = "0.8.2",
     default-features = false,
     features = ["number-to-chinese"]
 }
-clap = { version = "4.6.6", features = ["derive"] }

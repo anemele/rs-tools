@@ -1,5 +1,5 @@
+use argh::FromArgs;
 use chinese_number::{ChineseCase, ChineseVariant};
-use clap::{Parser, ValueEnum};
 use std::io::BufRead;
 
 fn convert_number(num: &str, case: ChineseCase) -> String {
@@ -21,24 +21,36 @@ fn convert_number(num: &str, case: ChineseCase) -> String {
     "not a number".into()
 }
 
-#[derive(Debug, Clone, Copy, ValueEnum)]
-enum Case {
-    Upper,
-    Lower,
+#[derive(Debug, FromArgs)]
+/// convert Arabic number to Chinese number
+#[argh(help_triggers("-h", "--help", "help"))]
+struct Args {
+    #[argh(switch, short = 'l')]
+    /// use lower case
+    lower: bool,
+
+    #[argh(switch, short = 'V')]
+    /// print version
+    version: bool,
 }
 
-#[derive(Debug, Parser)]
-struct Args {
-    #[arg(short, long, value_enum, default_value_t=Case::Upper)]
-    case: Case,
+#[inline]
+fn print_version() {
+    println!("{} v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+    std::process::exit(0);
 }
 
 fn main() {
-    let args = Args::parse();
+    let args: Args = argh::from_env();
 
-    let case = match args.case {
-        Case::Upper => ChineseCase::Upper,
-        Case::Lower => ChineseCase::Lower,
+    if args.version {
+        print_version();
+    }
+
+    let case = if args.lower {
+        ChineseCase::Lower
+    } else {
+        ChineseCase::Upper
     };
 
     std::io::stdin()

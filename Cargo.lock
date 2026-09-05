@@ -6,8 +6,8 @@ version = 4
 name = "an2cn"
 version = "0.1.0"
 dependencies = [
+ "argh",
  "chinese-number",
- "clap",
 ]
 
 [[package]]
@@ -548,7 +548,7 @@ dependencies = [
 name = "numsys"
 version = "0.1.0"
 dependencies = [
- "clap",
+ "argh",
  "thiserror",
 ]
 

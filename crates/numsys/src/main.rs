@@ -1,22 +1,40 @@
+use argh::FromArgs;
+use numsys::NumSys;
 use std::io::BufRead;
 
-use clap::Parser;
-use numsys::NumSys;
-
-#[derive(Debug, Parser)]
+#[derive(Debug, FromArgs)]
+/// numeral system: convert number between different bases.
+#[argh(help_triggers("-h", "--help", "help"))]
 struct Args {
-    #[arg(default_value_t = 16)]
+    #[argh(option, short = 't', default = "16")]
+    /// to base, default 16
     to_base: usize,
 
-    #[arg(default_value_t = 10)]
+    #[argh(option, short = 'f', default = "10")]
+    /// from base, default 10
     from_base: usize,
 
-    #[arg(help = "default: 0-9A-Z")]
+    #[argh(option, short = 'c')]
+    /// charset, default [0-9A-Z]
     charset: Option<String>,
+
+    #[argh(switch, short = 'V')]
+    /// print version
+    version: bool,
+}
+
+#[inline]
+fn print_version() {
+    println!("{} v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+    std::process::exit(0);
 }
 
 fn main() {
-    let args = Args::parse();
+    let args: Args = argh::from_env();
+
+    if args.version {
+        print_version();
+    }
 
     let ns = match args.charset {
         None => NumSys::default(),
