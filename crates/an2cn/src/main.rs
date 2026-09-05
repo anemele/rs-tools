@@ -23,7 +23,7 @@ fn convert_number(num: &str, case: ChineseCase) -> String {
 
 #[derive(Debug, FromArgs)]
 /// convert Arabic number to Chinese number
-#[argh(help_triggers("-h", "--help", "help"))]
+#[argh(help_triggers("-h", "--help"))]
 struct Args {
     #[argh(switch, short = 'l')]
     /// use lower case

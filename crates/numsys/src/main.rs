@@ -4,7 +4,7 @@ use std::io::BufRead;
 
 #[derive(Debug, FromArgs)]
 /// numeral system: convert number between different bases.
-#[argh(help_triggers("-h", "--help", "help"))]
+#[argh(help_triggers("-h", "--help"))]
 struct Args {
     #[argh(option, short = 't', default = "16")]
     /// to base, default 16

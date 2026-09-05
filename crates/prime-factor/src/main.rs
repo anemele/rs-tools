@@ -18,42 +18,38 @@ fn get_spf_file(re_generate: bool) -> io::Result<(fs::File, Mmap)> {
     }
 
     let spf_file = cache_path.join(SPF_FILE);
-    if !re_generate && fs::exists(&spf_file)? {
-        eprintln!("load existing spf file");
-        let file = fs::File::open(spf_file)?;
-        let mmap = unsafe { Mmap::map(&file)? };
-        return Ok((file, mmap));
-    }
-    eprintln!("no spf file, generating...");
+    if re_generate || !fs::exists(&spf_file)? {
+        eprintln!("generating spf file...");
+        let mut spf = vec![0u32; N];
+        let mut prime = vec![0u32; 0];
 
-    let mut spf = vec![0u32; N];
-    let mut prime = vec![0u32; 0];
-
-    for i in 2..N {
-        if spf[i] == 0 {
-            spf[i] = i as u32;
-            prime.push(i as u32);
-        }
-        for p in &prime {
-            let p = *p;
-            let ip = p as usize * i;
-            if ip >= N {
-                break;
+        for i in 2..N {
+            if spf[i] == 0 {
+                spf[i] = i as u32;
+                prime.push(i as u32);
             }
-            spf[ip] = p;
-            if p == spf[i] {
-                break;
+            for p in &prime {
+                let p = *p;
+                let ip = p as usize * i;
+                if ip >= N {
+                    break;
+                }
+                spf[ip] = p;
+                if p == spf[i] {
+                    break;
+                }
             }
         }
+
+        let mut file = fs::File::create(&spf_file)?;
+        let bytes = cast_slice(&spf);
+        file.write_all(bytes)?;
     }
 
-    let mut file = fs::File::create(&spf_file)?;
-    let bytes = cast_slice(&spf);
-    file.write_all(bytes)?;
     let file = fs::File::open(&spf_file)?;
     let mmap = unsafe { Mmap::map(&file)? };
+    eprintln!("loaded spf file");
 
-    eprintln!("done!");
     Ok((file, mmap))
 }
 
@@ -82,7 +78,7 @@ fn factor(view: &[u32], mut n: u32) -> Option<String> {
 
 #[derive(Debug, FromArgs)]
 /// prime factor/filter
-#[argh(help_triggers("-h", "--help", "help"))]
+#[argh(help_triggers("-h", "--help"))]
 struct Args {
     #[argh(switch, short = 'g')]
     /// re-generate spf file
